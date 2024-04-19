@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css/normalize.css">
+    <link rel="stylesheet" href="/index.css">
+    <title>CRUD Project</title>
+</head>
+<body>
+    <form class="user-add" id="user-add-form">
+        <label for="user-add-input">Type in the name of the user you wish to add</label>
+        <input class="user-add-input" id="user-add-input" type="text" >
+            <select name="" id="user-status-selection">
+                <option value="Conversation">Conversation</option>
+                <option value="Prospect">Prospect</option>
+                <option value="Outbound">Outbound</option>
+                <option value="Demo">Demo</option>
+                <option value="Sale">Sale</option>
+                <option value="Dead">Dead</option>
+            </select>
+        <button class="btn-primary" type="submit">Create User</button>
+    </form>
+    <main class="main-wrapper">
+    </main>
+    <script src="/index.js"></script>
+</body>
+</html>
