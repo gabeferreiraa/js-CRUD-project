@@ -12,7 +12,6 @@
 
 body {
   background-color: var(--color-gray);
-  height: 100vh;
   box-sizing: border-box;
   margin: 0;
   font-size: 16;
@@ -24,9 +23,10 @@ body {
   background-color: var(--color-gray);
   margin: auto;
   color: var(--color-light);
+  min-height: 100vh;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   grid-template-rows: auto;
   padding: 1rem;
   gap: 2rem;
@@ -38,7 +38,8 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
+  padding-right: 15px;
   gap: 2rem;
   width: 90%;
   height: 300px;
@@ -104,7 +105,7 @@ body {
 }
 
 .user-add {
-  height: 20vh;
+  height: 35vh;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -113,9 +114,31 @@ body {
   margin: auto;
 }
 
+.name-input-wrapper {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+}
+
+.user-add-input-first {
+  height: 25px;
+  border-radius: 5px;
+  border: 2px solid var(--primary-color);
+}
+.user-add-input-last {
+  height: 25px;
+  border-radius: 5px;
+  border: 2px solid var(--primary-color);
+}
+
+.name-input-subwrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 .user-add-input {
-  height: 30px;
-  max-width: 600px;
+  height: 25px;
+  max-width: 400px;
   border-radius: 5px;
   border: 2px solid var(--primary-color);
   color: var(--color-dark);

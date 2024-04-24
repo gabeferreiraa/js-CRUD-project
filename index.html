@@ -9,8 +9,18 @@
 </head>
 <body>
     <form class="user-add" id="user-add-form">
-        <label for="user-add-input">Type in the name of the user you wish to add</label>
-        <input class="user-add-input" id="user-add-input" type="text" >
+        <div class="name-input-wrapper">
+            <div class="name-input-subwrapper">
+                <label for="user-add-input">First Name</label>
+                <input class="user-add-input-first" id="user-add-input-first" type="text" >
+            </div>
+            <div class="name-input-subwrapper">
+                <label for="user-add-input">Last Name</label>
+                <input class="user-add-input-last" id="user-add-input-last" type="text" >
+            </div>
+        </div>
+        <label for="user-add-input">Enter your email</label>
+        <input class="user-add-input" id="user-email" type="text" >
             <select name="" id="user-status-selection">
                 <option value="Conversation">Conversation</option>
                 <option value="Prospect">Prospect</option>
