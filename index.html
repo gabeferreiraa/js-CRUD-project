@@ -29,8 +29,43 @@
                 <option value="Sale">Sale</option>
                 <option value="Dead">Dead</option>
             </select>
-        <button class="btn-primary" type="submit">Create User</button>
+            <select name="user-add-temp" id="user-temp-selection">
+                <option value="Cold">Cold</option>
+                <option value="Warm">Warm</option>
+                <option value="Hot">Hot</option>
+            </select>
+        <button class="btn-primary" type="submit" onclick="closeAddUserModal()">Create User</button>
     </form>
+    <div class="menu-wrapper" id="menu-wrapper">
+        <div class="user-search-wrapper">
+            <label class="user-search-label" for="user-search">
+                Search for a user
+            </label>
+            <input type="search" name="user-search" id="user-search">
+        </div>
+       <button class="btn-primary" onclick="openAddUserModal()">Add New User</button>
+
+    </div>
+    <div class="update-modal" id="update-modal">
+        <div class="update-modal-text">Please choose a new status</div>
+        <form action="submit" class="update-modal-options" id="update-modal-form">
+            <button type="button" class="btn-modal" data-status="Conversation" onclick="setStatus(this)">Conversation</button>
+            <button type="button" class="btn-modal" data-status="Prospect" onclick="setStatus(this)">Prospect</button>
+            <button type="button" class="btn-modal" data-status="Outbound" onclick="setStatus(this)">Outbound</button>
+            <button type="button" class="btn-modal" data-status="Demo" onclick="setStatus(this)">Demo</button>
+            <button type="button" class="btn-modal" data-status="Sale" onclick="setStatus(this)">Sale</button>
+            <button type="button" class="btn-modal" data-status="Dead" onclick="setStatus(this)">Dead</button>
+        </form>
+    </div>
+    <div class="user-temp-form" id="user-temp-form">
+        <div class="update-temp-text">Please choose a new temperature</div>
+        <form action="submit" class="update-temp-options" id="update-user-temp-form">
+            <button type="button" class="btn-temp cold" data-temp="Cold" onclick="setUserTemp(this)">Cold</button>
+            <button type="button" class="btn-temp warm" data-temp="Warm" onclick="setUserTemp(this)">Warm</button>
+            <button type="button" class="btn-temp hot" data-temp="Hot" onclick="setUserTemp(this)">Hot</button>
+        </form>
+    </div>
+
     <main class="main-wrapper">
     </main>
     <script src="/index.js"></script>
