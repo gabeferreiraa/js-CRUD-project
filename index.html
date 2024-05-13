@@ -21,7 +21,8 @@
         </div>
         <label for="user-add-input">Enter your email</label>
         <input class="user-add-input" id="user-email" type="text" >
-            <select name="" id="user-status-selection">
+        <label for="user-status">Select a conversation status</label>
+            <select name="user-status" id="user-status-selection">
                 <option value="Conversation">Conversation</option>
                 <option value="Prospect">Prospect</option>
                 <option value="Outbound">Outbound</option>
@@ -29,11 +30,14 @@
                 <option value="Sale">Sale</option>
                 <option value="Dead">Dead</option>
             </select>
-            <select name="user-add-temp" id="user-temp-selection">
+            <label for="user-add-temp">Select a conversation temperature</label>
+            <select name="user-add-temp" id="user-temp-selection" class="user-temp-selection">
                 <option value="Cold">Cold</option>
                 <option value="Warm">Warm</option>
                 <option value="Hot">Hot</option>
             </select>
+            <label for="user-organization-input">Enter an affiliated organization</label>
+            <input type="text" class="user-organization-input" id="user-organization-input">
         <button class="btn-primary" type="submit" onclick="closeAddUserModal()">Create User</button>
     </form>
     <div class="menu-wrapper" id="menu-wrapper">

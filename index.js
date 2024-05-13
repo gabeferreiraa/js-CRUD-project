@@ -1,6 +1,9 @@
 let usersList = document.querySelector(".main-wrapper");
 
-window.onload = readUsers();
+window.onload = function () {
+  initializeOrganizations();
+  readUsers();
+};
 
 const userURL = " https://random-data-api.com/api/v2/users?response_type=json";
 
@@ -28,53 +31,104 @@ async function getRandomUserImage() {
 function readUsers() {
   usersList.innerHTML = "";
 
+  // Fetch and parse stored data
   let masterUsers = localStorage.getItem("masterUsers");
-  if (!masterUsers) {
+  let organizations = localStorage.getItem("organizations");
+  if (!masterUsers || !organizations) {
+    console.log("No data available");
     return;
   }
   let masterUsersUser = JSON.parse(masterUsers);
+  let masterOrganizations = JSON.parse(organizations);
 
   masterUsersUser.forEach((user, i) => {
-    let tempClass = "";
-    if (user.temp === "Hot") {
-      tempClass = "hot";
-    } else if (user.temp === "Cold") {
-      tempClass = "cold";
-    } else {
-      tempClass = "warm";
+    let tempClass =
+      user.temp === "Hot" ? "hot" : user.temp === "Cold" ? "cold" : "warm";
+
+    // Initialize organization logos HTML
+    let orgLogoHtml = "";
+    if (user.organizations) {
+      user.organizations.forEach((orgName) => {
+        let orgLogo = masterOrganizations[orgName]
+          ? masterOrganizations[orgName].org_logo
+          : " ";
+        orgLogoHtml += `<img class="org-logo" src="${orgLogo}" alt="${orgName} logo" style="width:50px; height:50px;">`;
+      });
     }
 
     let elements = `
         <div class="user-card">
              <div class="user-image-wrapper"><img class="user-image" src=${user.image}></div>
-            <div class="user-name">${user.first_name} ${user.last_name}</div>
-            <div class="user-email">${user.email}</div>
-            <div class="user-status">
-              <div class="user-status-circle"></div>
-              ${user.status}
-              <i class="user-update" onclick="prepareStatusUpdate(${i})">
-                <img class="user-update-icon" src="./icons8-pencil-48.png" alt="update user">
-              </i>
-            </div>
-            <div class="user-temp-wrapper ${tempClass}">
-              <div>${user.temp}</div>
-              <i class="user-temp" onclick="prepareTempUpdate(${i})">
-                <img class="user-temp-icon" src="./icons8-pencil-48.png" alt="update temp">
-              </i>
-            </div>
-            <i class="user-delete" onclick="deleteUser(${i})">
-                <img class="user-delete-icon" src="./delete.png" alt="delete user">
-            </i>
-        </div>
-        `;
+             <div class="user-content">
+                <div class="org-logo-wrapper">${orgLogoHtml}</div>
+                <div class="user-name">${user.first_name} ${user.last_name}</div>
+                <div class="user-email">${user.email}</div>
+             </div>
+             <div class="user-status">
+                 <div class="user-status-circle"></div>
+                 ${user.status}
+                 <i class="user-update" onclick="prepareStatusUpdate(${i})">
+                     <img class="user-update-icon" src="./icons8-pencil-48.png" alt="update user">
+                 </i>
+             </div>
+             <div class="user-temp-wrapper ${tempClass}">
+                 <div>${user.temp}</div>
+                 <i class="user-temp" onclick="prepareTempUpdate(${i})">
+                     <img class="user-temp-icon" src="./icons8-pencil-48.png" alt="update temp">
+                 </i>
+             </div>
+             <i class="user-delete" onclick="deleteUser(${i})">
+                 <img class="user-delete-icon" src="./delete.png" alt="delete user">
+             </i>
+         </div>
+         `;
     usersList.innerHTML += elements;
   });
 }
 
+async function getLogoURL(orgName) {
+  const encodedName = encodeURIComponent(orgName.trim());
+  const logoURL = `https://logo.clearbit.com/${encodedName}.com`;
+  try {
+    const response = await fetch(logoURL);
+    if (response.ok) {
+      console.log("Received logo", response);
+      return logoURL;
+    }
+    throw new Error("Logo not found");
+  } catch (error) {
+    console.error("Error fetching logo:", error);
+  }
+}
+
+async function addUsertoOrganization(user, orgName) {
+  let organizations = JSON.parse(localStorage.getItem("organizations")) || {};
+  // Init if none
+  let orgLogo = await getLogoURL(orgName);
+  console.log(orgLogo);
+  if (!organizations[orgName]) {
+    organizations[orgName] = {
+      users: [],
+      created_at: new Date().toISOString(),
+      org_logo: orgLogo,
+    };
+  }
+  // Pass User ID
+  organizations[orgName].users.push(user.id);
+
+  // Saving...
+  localStorage.setItem("organizations", JSON.stringify(organizations));
+  console.log(organizations);
+}
+
+function initializeOrganizations() {
+  if (!localStorage.getItem("organizations")) {
+    localStorage.setItem("organizations", JSON.stringify({}));
+  }
+}
+
 async function addUser(event) {
   event.preventDefault();
-
-  let organizations = [];
 
   let userInputFirstName = document.querySelector(
     "#user-add-input-first"
@@ -83,12 +137,15 @@ async function addUser(event) {
   let userStatus = document.querySelector("#user-status-selection").value;
   let userTemp = document.querySelector("#user-temp-selection").value; // Define and assign userTemp
   let userEmail = document.querySelector("#user-email").value;
+  let userOrganizations = document
+    .querySelector("#user-organization-input")
+    .value.split(",");
 
   let userImage = await getRandomUserImage();
 
-  let userID = null;
+  let userID = Math.round(Math.random() * 10000);
 
-  let newUser = {
+  var newUser = {
     id: userID,
     first_name: userInputFirstName,
     last_name: userInputLastName,
@@ -96,6 +153,7 @@ async function addUser(event) {
     email: userEmail,
     image: userImage,
     temp: userTemp,
+    organizations: userOrganizations,
   };
 
   let savedUsers = localStorage.getItem("masterUsers");
@@ -105,6 +163,10 @@ async function addUser(event) {
   savedUsersJSON.push(newUser);
 
   localStorage.setItem("masterUsers", JSON.stringify(savedUsersJSON));
+
+  userOrganizations.forEach((org) => {
+    addUsertoOrganization(newUser, org.trim());
+  });
 
   readUsers();
 }
