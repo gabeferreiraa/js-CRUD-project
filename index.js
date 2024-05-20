@@ -86,8 +86,6 @@ async function addUserToOrganization(orgName) {
     first_name: userFirstName,
     last_name: userLastName,
     email: userEmail,
-    temp: "Warm", // Default temperature, adjust as necessary
-    status: "Prospect", // Default status, adjust as necessary
     organizations: [orgName],
   };
 
@@ -117,8 +115,6 @@ async function addUser(event) {
     "#user-add-input-first"
   ).value;
   let userInputLastName = document.querySelector("#user-add-input-last").value;
-  let userStatus = document.querySelector("#user-status-selection").value;
-  let userTemp = document.querySelector("#user-temp-selection").value; // Define and assign userTemp
   let userEmail = document.querySelector("#user-email").value;
   let userOrganizations = document
     .querySelector("#user-organization-input")
@@ -132,10 +128,8 @@ async function addUser(event) {
     id: userID,
     first_name: userInputFirstName,
     last_name: userInputLastName,
-    status: userStatus,
     email: userEmail,
     image: userImage,
-    temp: userTemp,
     organizations: userOrganizations,
   };
 
