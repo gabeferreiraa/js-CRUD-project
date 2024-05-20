@@ -47,9 +47,38 @@
             </label>
             <input type="search" name="user-search" id="user-search">
         </div>
-       <button class="btn-primary" onclick="openAddUserModal()">Add New User</button>
-
+       <button class="btn-primary" onclick="openAddOrgModal()">Add new org</button>
+       <!-- <button class="btn-primary" onclick="openAddUserModal()">Add new org</button> -->
     </div>
+
+    <div id="org-add-form" class="add-org-modal">
+    <h2>Add New Organization</h2>
+    <form id="add-organization-form">
+        <label for="org-name" class="org-form-text">Organization Name:</label>
+        <input type="text" id="org-name" class="org-input" required>
+
+        <label for="org-temp" class="org-form-text">Temperature:</label>
+        <select id="org-temp" class="org-input" required>
+        <option value="Hot">🔥 Hot</option>
+        <option value="Warm">☀️ Warm</option>
+        <option value="Cold">❄️ Cold</option>
+        </select>
+
+        <label for="org-status" class="org-form-text">Status:</label>
+        <select id="org-status" class="org-input" required>
+            <option value="Conversation">Conversation</option>
+            <option value="Prospect">Prospect</option>
+            <option value="Outbound">Outbound</option>
+            <option value="Demo">Demo</option>
+            <option value="Sale">Sale</option>
+            <option value="Dead">Dead</option>
+        </select>
+
+        <button type="submit" class="btn-primary">Add Organization</button>
+        <button type="button" class="btn-secondary" onclick="closeAddOrgModal()">Cancel</button>
+    </form>
+    </div>
+
     <div class="update-modal" id="update-modal">
         <div class="update-modal-text">Please choose a new status</div>
         <form action="submit" class="update-modal-options" id="update-modal-form">
@@ -69,9 +98,34 @@
             <button type="button" class="btn-temp hot" data-temp="Hot" onclick="setUserTemp(this)">Hot</button>
         </form>
     </div>
-
     <main class="main-wrapper">
+        <div class="org-list">
+        </div>
+        <div class="users-list"></div> <!-- Container for users -->
     </main>
+
+    <div id="organization-modal" class="organization-modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeOrganizationModal()">&times;</span>
+    <h2 id="modal-org-name"></h2>
+    <p id="modal-org-info"></p>
+    <div id="modal-users-list"></div>
+    <h3>Add User to Organization</h3>
+    <form id="add-user-to-org-form">
+      <label for="user-first-name">First Name:</label>
+      <input type="text" id="user-first-name" required>
+
+      <label for="user-last-name">Last Name:</label>
+      <input type="text" id="user-last-name" required>
+
+      <label for="user-email">Email:</label>
+      <input type="email" id="user-add-email" required>
+
+      <button type="submit">Add User</button>
+    </form>
+  </div>
+</div>
     <script src="/index.js"></script>
 </body>
 </html>
+

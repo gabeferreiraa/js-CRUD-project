@@ -1,8 +1,10 @@
-let usersList = document.querySelector(".main-wrapper");
+let usersList = document.querySelector(".users-list");
+let organizationsList = document.querySelector(".org-list");
 
 window.onload = function () {
   initializeOrganizations();
   readUsers();
+  readOrganizations();
 };
 
 const userURL = " https://random-data-api.com/api/v2/users?response_type=json";
@@ -33,55 +35,26 @@ function readUsers() {
 
   // Fetch and parse stored data
   let masterUsers = localStorage.getItem("masterUsers");
-  let organizations = localStorage.getItem("organizations");
-  if (!masterUsers || !organizations) {
-    console.log("No data available");
+  if (!masterUsers) {
+    console.log("No user data available");
     return;
   }
   let masterUsersUser = JSON.parse(masterUsers);
-  let masterOrganizations = JSON.parse(organizations);
 
   masterUsersUser.forEach((user, i) => {
     let tempClass =
       user.temp === "Hot" ? "hot" : user.temp === "Cold" ? "cold" : "warm";
 
-    // Initialize organization logos HTML
+    let tempEmoji =
+      user.temp === "Hot" ? "🔥" : user.temp === "Cold" ? "❄️" : "☀️";
+
+    // Initialize organization logos and names HTML
     let orgLogoHtml = "";
-    if (user.organizations) {
-      user.organizations.forEach((orgName) => {
-        let orgLogo = masterOrganizations[orgName]
-          ? masterOrganizations[orgName].org_logo
-          : " ";
-        orgLogoHtml += `<img class="org-logo" src="${orgLogo}" alt="${orgName} logo" style="width:50px; height:50px;">`;
-      });
-    }
+    let orgNameHtml = "";
 
     let elements = `
-        <div class="user-card">
-             <div class="user-image-wrapper"><img class="user-image" src=${user.image}></div>
-             <div class="user-content">
-                <div class="org-logo-wrapper">${orgLogoHtml}</div>
-                <div class="user-name">${user.first_name} ${user.last_name}</div>
-                <div class="user-email">${user.email}</div>
-             </div>
-             <div class="user-status">
-                 <div class="user-status-circle"></div>
-                 ${user.status}
-                 <i class="user-update" onclick="prepareStatusUpdate(${i})">
-                     <img class="user-update-icon" src="./icons8-pencil-48.png" alt="update user">
-                 </i>
-             </div>
-             <div class="user-temp-wrapper ${tempClass}">
-                 <div>${user.temp}</div>
-                 <i class="user-temp" onclick="prepareTempUpdate(${i})">
-                     <img class="user-temp-icon" src="./icons8-pencil-48.png" alt="update temp">
-                 </i>
-             </div>
-             <i class="user-delete" onclick="deleteUser(${i})">
-                 <img class="user-delete-icon" src="./delete.png" alt="delete user">
-             </i>
-         </div>
-         `;
+     
+    `;
     usersList.innerHTML += elements;
   });
 }
@@ -92,33 +65,43 @@ async function getLogoURL(orgName) {
   try {
     const response = await fetch(logoURL);
     if (response.ok) {
-      console.log("Received logo", response);
       return logoURL;
     }
     throw new Error("Logo not found");
   } catch (error) {
     console.error("Error fetching logo:", error);
+    return ""; // Return an empty string if the logo is not found
   }
 }
 
-async function addUsertoOrganization(user, orgName) {
-  let organizations = JSON.parse(localStorage.getItem("organizations")) || {};
-  // Init if none
-  let orgLogo = await getLogoURL(orgName);
-  console.log(orgLogo);
-  if (!organizations[orgName]) {
-    organizations[orgName] = {
-      users: [],
-      created_at: new Date().toISOString(),
-      org_logo: orgLogo,
-    };
-  }
-  // Pass User ID
-  organizations[orgName].users.push(user.id);
+async function addUserToOrganization(orgName) {
+  let userFirstName = document.getElementById("user-first-name").value;
+  let userLastName = document.getElementById("user-last-name").value;
+  let userEmail = document.getElementById("user-add-email").value;
 
-  // Saving...
+  let userID = Math.round(Math.random() * 10000);
+
+  let newUser = {
+    id: userID,
+    first_name: userFirstName,
+    last_name: userLastName,
+    email: userEmail,
+    temp: "Warm", // Default temperature, adjust as necessary
+    status: "Prospect", // Default status, adjust as necessary
+    organizations: [orgName],
+  };
+
+  let savedUsers = localStorage.getItem("masterUsers");
+  let savedUsersJSON = savedUsers ? JSON.parse(savedUsers) : [];
+  savedUsersJSON.push(newUser);
+  localStorage.setItem("masterUsers", JSON.stringify(savedUsersJSON));
+
+  let organizations = JSON.parse(localStorage.getItem("organizations"));
+  organizations[orgName].users.push(userID);
   localStorage.setItem("organizations", JSON.stringify(organizations));
-  console.log(organizations);
+
+  // Update the modal content
+  openOrganizationModal(orgName);
 }
 
 function initializeOrganizations() {
@@ -165,34 +148,92 @@ async function addUser(event) {
   localStorage.setItem("masterUsers", JSON.stringify(savedUsersJSON));
 
   userOrganizations.forEach((org) => {
-    addUsertoOrganization(newUser, org.trim());
+    addUserToOrganization(newUser, org.trim());
   });
 
   readUsers();
 }
 
-const userInputForm = document.querySelector("#user-add-form");
-userInputForm.addEventListener("submit", addUser);
+function readOrganizations() {
+  organizationsList.innerHTML = ""; // Clear the existing organizations
 
-function deleteUser(index) {
-  let savedUsers = localStorage.getItem("masterUsers");
-  const savedUsersJSON = savedUsers ? JSON.parse(savedUsers) : [];
-
-  if (!savedUsersJSON) {
+  let organizations = localStorage.getItem("organizations");
+  if (!organizations) {
+    console.log("No organization data available");
     return;
   }
-  // This is deleting...
-  const arrayAfterDeletion = savedUsersJSON.filter((element, i) => {
-    if (i != index) {
-      return element;
-    }
+  let masterOrganizations = JSON.parse(organizations);
+
+  Object.keys(masterOrganizations).forEach((orgName) => {
+    const organization = masterOrganizations[orgName];
+    let tempClass =
+      organization.temp === "Hot"
+        ? "hot"
+        : organization.temp === "Cold"
+        ? "cold"
+        : "warm";
+
+    let tempEmoji =
+      organization.temp === "Hot"
+        ? "🔥"
+        : organization.temp === "Cold"
+        ? "❄️"
+        : "☀️";
+
+    let orgElements = `
+      <div class="organization-card">
+        <div class="organization-logo">
+          <img class="org-logo" src="${
+            organization.org_logo || "placeholder.png"
+          }" alt="${orgName} logo" style="width:50px; height:50px;">
+        </div>
+        <div class="organization-info">
+          <h2 class="organization-name">${orgName}</h2>
+          <h4 class="organization-status">${organization.status}</h4>
+        </div>
+        <div class="organization-temp ${tempClass}">
+          ${tempEmoji}
+        </div>
+        <div class="organization-expand" onclick="openOrganizationModal('${orgName}')">
+          <img class="expand-logo" src="./icons8-fullscreen-48.png" alt="expand organization">
+        </div>
+      </div>
+    `;
+    organizationsList.innerHTML += orgElements;
   });
-  // Deleting is done
+}
 
-  localStorage.setItem("masterUsers", JSON.stringify(arrayAfterDeletion));
-  console.log(arrayAfterDeletion);
+function openOrganizationModal(orgName) {
+  let organizations = JSON.parse(localStorage.getItem("organizations"));
+  let organization = organizations[orgName];
 
-  readUsers();
+  document.getElementById("modal-org-name").textContent = organization.name;
+  document.getElementById("modal-org-info").innerHTML = `
+    <p>Status: ${organization.status}</p>
+    <p>Temperature: ${organization.temp}</p>
+  `;
+
+  let usersListHtml = "<h3>Users in this organization:</h3>";
+  if (organization.users.length > 0) {
+    organization.users.forEach((userId) => {
+      let masterUsers = JSON.parse(localStorage.getItem("masterUsers"));
+      let user = masterUsers.find((u) => u.id === userId);
+      usersListHtml += `<p>${user.first_name} ${user.last_name} - ${user.email}</p>`;
+    });
+  } else {
+    usersListHtml += "<p>No users in this organization.</p>";
+  }
+  document.getElementById("modal-users-list").innerHTML = usersListHtml;
+
+  document.getElementById("organization-modal").style.display = "block";
+
+  document.getElementById("add-user-to-org-form").onsubmit = function (event) {
+    event.preventDefault();
+    addUserToOrganization(orgName);
+  };
+}
+function closeOrganizationModal() {
+  document.getElementById("organization-modal").style.display = "none";
 }
 
 function updateUserStatus(index, newStatus) {
@@ -224,6 +265,39 @@ function updateUserTemp(index, newTemp) {
   // Saving ...
   localStorage.setItem("masterUsers", JSON.stringify(usersArray));
   readUsers();
+}
+
+document
+  .getElementById("add-organization-form")
+  .addEventListener("submit", addOrganization);
+
+async function addOrganization(event) {
+  event.preventDefault();
+
+  let orgName = document.getElementById("org-name").value;
+  let orgTemp = document.getElementById("org-temp").value;
+  let orgStatus = document.getElementById("org-status").value;
+
+  let orgLogo = await getLogoURL(orgName);
+
+  let newOrg = {
+    name: orgName,
+    temp: orgTemp,
+    status: orgStatus,
+    org_logo: orgLogo,
+    created_at: new Date().toISOString(),
+    users: [],
+  };
+
+  let organizations = JSON.parse(localStorage.getItem("organizations")) || {};
+  organizations[orgName] = newOrg;
+
+  localStorage.setItem("organizations", JSON.stringify(organizations));
+  console.log("New organization added:", newOrg);
+
+  // Close the modal and refresh the organization list
+  closeAddOrgModal();
+  readOrganizations();
 }
 
 function prepareStatusUpdate(index) {
@@ -281,3 +355,40 @@ function closeModalAndUpdate() {
   document.querySelector(".main-wrapper").style.display = "grid";
   document.querySelector("#menu-wrapper").style.display = "flex";
 }
+
+function openAddOrgModal() {
+  document.querySelector("#org-add-form").style.display = "flex";
+  document.querySelector(".main-wrapper").style.display = "none";
+  document.querySelector("#menu-wrapper").style.display = "none";
+}
+
+function closeAddOrgModal() {
+  document.querySelector("#org-add-form").style.display = "none";
+  document.querySelector(".main-wrapper").style.display = "grid";
+  document.querySelector("#menu-wrapper").style.display = "flex";
+}
+
+// let elements = `
+//         <div class="organization-card">
+//              <div class="user-image-wrapper"><img class="user-image" src=${user.image}></div>
+//              <div class="user-content">
+//                 <div class="org-logo-wrapper">${orgLogoHtml}</div>
+//              </div>
+//              <div class="user-status">
+//                  <div class="user-status-circle"></div>
+//                  ${user.status}
+//                  <i class="user-update" onclick="prepareStatusUpdate(${i})">
+//                      <img class="user-update-icon" src="./icons8-pencil-48.png" alt="update user">
+//                  </i>
+//              </div>
+//              <div class="user-temp-wrapper ${tempClass}">
+//                  <div>${user.temp}</div>
+//                  <i class="user-temp" onclick="prepareTempUpdate(${i})">
+//                      <img class="user-temp-icon" src="./icons8-pencil-48.png" alt="update temp">
+//                  </i>
+//              </div>
+//              <i class="user-delete" onclick="deleteUser(${i})">
+//                  <img class="user-delete-icon" src="./delete.png" alt="delete user">
+//              </i>
+//          </div>
+//          `;
